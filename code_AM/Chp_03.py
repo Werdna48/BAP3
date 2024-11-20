@@ -7,6 +7,10 @@ import pymc as pm
 import preliz as pz
 import pytensor
 
+pytensor.config.gcc__cxxflags = '-L/opt/miniconda3/envs/bap3/lib -O3 -march=native'
+pytensor.config.cxx = '/usr/bin/clang++'
+pytensor.config.blas__ldflags = '-framework Accelerate'
+
 #%% Important style code
 az.style.use("arviz-grayscale")
 from cycler import cycler
@@ -16,7 +20,8 @@ plt.rc('figure', dpi=300)
 np.random.seed(123)
 
 #%% Load theoretical NMR data
-cs_data = pd.read_csv('D:\BAP\BAP3\code\data\chemical_shifts_theo_exp.csv')
+# cs_data = pd.read_csv('D:\BAP\BAP3\code\data\chemical_shifts_theo_exp.csv')
+cs_data = pd.read_csv('/Users/uqamcka3/PHD/bap_Martin/BAP3/code/data/chemical_shifts_theo_exp.csv')
 diff = cs_data.theo - cs_data.exp
 cat_encode = pd.Categorical(cs_data['aa'])
 idx = cat_encode.codes
