@@ -302,10 +302,16 @@ if __name__ == '__main__':
         print((thursday_tip_draws > sunday_tip_draws).mean())
 
         #Calculate cohens d for fun
-        cohens_d = (np.mean(posterior_predictive_thursday.values) - np.mean(posterior_predictive_sunday.values))/np.sqrt((np.std(posterior_predictive_sunday.values)+np.std(posterior_predictive_sunday.values))/2)
-        print(f"Cohens d: {cohens_d}")
+        dist = pz.Normal(0, 1)
 
-        #probability of superiority
-        ps = 0.5 * (1 + erf((cohens_d/np.sqrt(2) / np.sqrt(2))))
+        means_diff = posterior['mu'].sel(days='Thur') -  posterior['mu'].sel(days='Sun')
+        
+        d_cohen = (means_diff /
+                np.sqrt((posterior["sigma"].sel(days='Thur')**2 + 
+                            posterior["sigma"].sel(days='Sun')**2) / 2)
+                ).mean().item()
+        
+        ps = dist.cdf(d_cohen/(2**0.5))
+        print(f"Cohens d: {d_cohen}")
         print(ps, (thursday_tip_draws > sunday_tip_draws).mean())
 # %%
