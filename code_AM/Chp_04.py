@@ -793,4 +793,28 @@ if __name__ == '__main__':
         k += N
     plt.show()
 
+# %% Multiple Linear regression
+if __name__ == '__main__':
+    with pm.Model() as model_mlb:
+        #priors
+        alpha = pm.Normal('alpha', mu=0, sigma=1)
+        beta_0 = pm.Normal('beta_0', mu=0, sigma=10)
+        beta_1 = pm.Normal('beta_1', mu=0, sigma=10)
+        sigma = pm.HalfNormal('sigma', 10)
+
+        #Multiple linear regression of temps and hour 
+        mu = pm.Deterministic('mu', pm.math.exp(alpha + beta_0 * bikes.temperature + beta_1*bikes.hour))
+
+        #likelihood
+        _ = pm.NegativeBinomial('y_pred', mu=mu, alpha=sigma, observed=bikes.rented)
+
+        idata_mlb = pm.sample(random_seed=123)
+
+    idata_neg.posterior["beta_0_scaled"] = idata_neg.posterior["beta"] * bikes.temperature.std()
+
+    idata_mlb.posterior["beta_0_scaled"] = idata_mlb.posterior["beta_0"] * bikes.temperature.std()
+    idata_mlb.posterior["beta_1_scaled"] = idata_mlb.posterior["beta_1"] * bikes.hour.std()
+
+    az.plot_forest([idata_neg, idata_mlb], model_names=["model_neg", "model_mlb"],
+    var_names=["beta_0_scaled", "beta_1_scaled"], figsize=(10, 3), combined=True)
 # %%
